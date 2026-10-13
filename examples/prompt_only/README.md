@@ -29,6 +29,7 @@ All parameters and defaults: [`harnessadapter/evolvers/prompt_only/evolver.yaml`
 | Folder | Task | Configs |
 |---|---|---|
 | [`officeqa/`](officeqa/) | [OfficeQA](../tasks/officeqa/); GLM 5.3 Flash acts and optimizes | `smoke.yaml`: 4 training questions in 2 steps, 2 test questions<br>`try.yaml`: 12 training questions in 3 steps, 10 test questions<br>`run.yaml`: 60 training questions in steps of 10, 2 epochs, 60 test questions |
+| [`visual_showcase/`](visual_showcase/) | [Visual showcase](../tasks/visual_showcase/); GLM 5.3 Flash writes an animated web page and optimizes from the score and the judge's feedback text only, never the page or its screenshots | `smoke.yaml`: case `waves`, 2 steps<br>`run_waves.yaml`, `run_lava.yaml`, `run_silk.yaml`: one adapter per case, 6 steps, 3 eval repeats, as in [`mwm_visual/`](../mwm_visual/) |
 
 ## Run
 
@@ -42,3 +43,24 @@ harnessadapter eval  --config examples/prompt_only/officeqa/smoke.yaml --adapter
 ```
 
 `--adapter none` runs the agent without an adapter, the baseline to compare with.
+
+The visual showcase needs Node 20 or newer and Google Chrome (the
+[task's requirements](../tasks/visual_showcase/README.md#requirements)):
+
+```bash
+npm ci --prefix examples/tasks/visual_showcase/runtime
+python examples/tasks/visual_showcase/prepare.py
+export FIREWORKS_API_KEY=...
+harnessadapter check --config examples/prompt_only/visual_showcase/smoke.yaml --no-probe
+harnessadapter train --config examples/prompt_only/visual_showcase/smoke.yaml
+harnessadapter train --config examples/prompt_only/visual_showcase/run_waves.yaml
+for n in 1 2 3 4 5; do
+  harnessadapter eval --config examples/prompt_only/visual_showcase/run_waves.yaml --adapter waves-po/ckpt-step-$n
+done
+```
+
+`waves-po/ckpt-step-N` is `ADAPTER.md` after N rewrites (W1 to W5), the adapter of the same step as `mwm_visual`'s
+`waves-r5/ckpt-step-N`; `final` is W6, a sixth rewrite that training never ran, so compare the methods on the
+checkpoints. Group eval results by `output.arm`: a checkpoint whose rewrites changed nothing is still W0 and runs as
+arm B. `--adapter none` is arm B, the same baseline as `mwm_visual`'s. The scores are laid out as in
+[`mwm_visual`](../mwm_visual/README.md#run), under `examples/prompt_only/visual_showcase/runs/waves-po/`.

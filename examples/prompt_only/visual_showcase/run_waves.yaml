@@ -1,0 +1,40 @@
+# Visual showcase, case waves, with the prompt-only Evolver: one model call per step rewrites ADAPTER.md from the step's
+# run (its score and the judge's feedback). Step k runs the adapter of step k-1: the root W0, which the pipeline runs
+# as arm B, then W1..W5 as arm C; step 6 also writes W6 (final), which training does not run. Every step is tagged
+# waves-po/ckpt-step-N. Same task, steps and eval repeats as ../../mwm_visual/visual_showcase/run_waves.yaml,
+# whose final is W5: compare the two methods on ckpt-step-1..5, not on final.
+data:
+  tasks: ../../tasks/visual_showcase/tasks.jsonl
+  train: ../../tasks/visual_showcase/splits/waves.txt
+  test: ../../tasks/visual_showcase/splits/waves-eval.txt  # the alias row waves-eval: the same task under another id
+  step_size: 1
+task_info: ../../tasks/visual_showcase/task-info/waves/
+pipeline:
+  run: ../../tasks/visual_showcase/pipeline.py:run
+  concurrency: 1                      # one run at a time, eval repeats too: runs never share the machine
+judge:
+  path: ../../tasks/visual_showcase/judge.py
+template: prompt-only@1.0
+evolver:
+  name: prompt_only
+  params: {max_chars: 6000}           # the whole judge feedback: 5 rubric lines and 12 item lines
+llm:
+  base_url: https://api.fireworks.ai/inference/v1
+  model: accounts/fireworks/models/glm-5p3-flash
+  api_key_env: FIREWORKS_API_KEY
+  price: {input: 0.15, cached_input: 0.03, output: 0.50}
+  extra_body: {reasoning_effort: 4096}  # caps GLM's thinking, as for the agent and the judge
+sandbox:
+  enabled: true
+  network: none                       # prompt_only starts no program; the Trainer itself makes the `llm` call
+  env: []
+trainer:
+  run_name: waves-po
+  output_dir: runs
+  tree_dir: runs/trees/waves          # one tree per case: separate adapters, all from the same W0
+  epochs: 6
+  save_freq: {steps: 1, epochs: 1}
+  budget: {usd: 10, hours: 6}
+  call_timeout_min: 30
+eval:
+  repeats: 3

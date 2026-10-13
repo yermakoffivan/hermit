@@ -10,8 +10,10 @@ examples/
     README.md        how the method works, its knobs, its examples
     <task>/
       smoke.yaml     a few questions, to check the setup end to end
-      run.yaml       the full run
+      run.yaml       the full run (run_<case>.yaml when a task's cases train separately)
       adapter/       an adapter trained with run.yaml, with its CARD.md (where included)
+      <evolver>/     a custom Evolver, when the method needs one
+      template/      a starting template of its own, when the method needs one
   tasks/<task>/      prepare.py, pipeline.py, judge.py, task-info/
   deploy/<use>/      finished adapters to check and deploy
 ```
@@ -20,17 +22,18 @@ examples/
 
 | Folder | `evolver.name` | Method | Tasks |
 |---|---|---|---|
-| [`prompt_only/`](prompt_only/) | `prompt_only` | One model call per step rewrites `ADAPTER.md` from the step's results | `officeqa` |
+| [`prompt_only/`](prompt_only/) | `prompt_only` | One model call per step rewrites `ADAPTER.md` from the step's results | `officeqa`, `visual_showcase` |
 | [`codex/`](codex/) | `codex` | A Codex agent edits the adapter from the step's learning material | `officeqa` |
 | [`gepa/`](gepa/) | `gepa` | GEPA: reflective text evolution with Pareto selection | `officeqa`, `officeqa_paper` |
 | [`skillopt/`](skillopt/) | `skillopt` | SkillOpt: a few validation-gated skill edits per step, under a learning rate | `officeqa`, `officeqa_paper` |
 | [`mwm/`](mwm/) | `mwm` | MetaWorld Model: a Codex learner maintains a world model of the environment after every block, under the native MWM contract | `clbench` (database, poker) |
+| [`mwm_visual/`](mwm_visual/) | `mwm_visual` (in `mwm_visual/visual_showcase/`) | MWM with an in-process learner model that reads the screenshots and records of earlier runs and edits the world model's Markdown | `visual_showcase` |
 
 ## Other
 
 | Folder | Contents |
 |---|---|
-| [`tasks/`](tasks/) | `officeqa`: 133 OfficeQA questions, answered by searching the Treasury Bulletins<br>`officeqa_paper`: OfficeQA in the SkillOpt paper's setting<br>`clbench`: the CL-Bench database and poker streams, played by metaworld's host seat |
+| [`tasks/`](tasks/) | `officeqa`: 133 OfficeQA questions, answered by searching the Treasury Bulletins<br>`officeqa_paper`: OfficeQA in the SkillOpt paper's setting<br>`clbench`: the CL-Bench database and poker streams, played by metaworld's host seat<br>`visual_showcase`: three animated web pages, captured in a real browser |
 | [`deploy/`](deploy/) | `lean_collab`: a finished adapter for five Codex agents proving Lean theorems together |
 
 ## Run an example
@@ -46,8 +49,8 @@ harnessadapter eval  --config examples/gepa/officeqa/smoke.yaml --adapter final
 ```
 
 Paths inside a config, and a path given to `--adapter`, are relative to the config's folder; a run writes to
-`<method>/<task>/runs/`. Run `smoke.yaml` before `run.yaml`: it checks the data, pipeline, judge and Evolver together
-on a few questions.
+`<method>/<task>/runs/`. Run `smoke.yaml` before the full run: it checks the data, pipeline, judge and Evolver
+together on a few questions.
 
 ## Add an example
 
