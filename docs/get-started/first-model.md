@@ -93,7 +93,7 @@ one, with one more if the reply holds no usable instructions. HTTP retries can a
 :file: ../_includes/first-model-walkthrough.html
 ```
 
-See more about training at [Evolving an adapter](../framework/overview.md#evolving-an-adapter).
+See more about training at [Evolving a harness adapter](../framework/overview.md#evolving-a-harness-adapter).
 
 The YAML uses token and time budgets; prices are not invented, so dollar cost is reported as unknown. Add
 verified `llm.price` settings for learner dollars and acting-client prices in the copied pipeline if you need
