@@ -18,7 +18,7 @@ An instruction-only harness adapter uses just the context path. Using a saved ha
 
 ## Evolving a harness adapter
 
-Hermit repeats a feedback loop: run the acting agent with a harness adapter, collect evidence, let an Evolver
+Hermit repeats a feedback loop: run the acting agent with a harness adapter, collect learning material, let an Evolver
 revise a working copy, then check and save the version used by the next batch.
 
 ```{raw} html
